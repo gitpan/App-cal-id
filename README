@@ -2,7 +2,7 @@ NAME
     App::cal::id - Display Indonesian calendar on the command-line
 
 VERSION
-    version 0.02
+    version 0.03
 
 SYNOPSIS
      # See cal-id script provided in this distribution

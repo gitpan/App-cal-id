@@ -21,4 +21,4 @@ requires:
 resources:
   homepage: http://metacpan.org/release/perl-App-cal-id
   repository: http://github.com/sharyanto/perl-App-cal-id
-version: 0.02
+version: 0.03

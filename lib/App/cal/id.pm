@@ -10,7 +10,7 @@ use List::Util qw(max);
 use Term::ANSIColor;
 use Text::ANSI::Util qw(ta_length);
 
-our $VERSION = '0.02'; # VERSION
+our $VERSION = '0.03'; # VERSION
 
 my $month_names = [qw(Januari Februari Maret April Mei Juni Juli Agustus September Oktober November Desember)];
 my $short_month_names = [qw(Jan Feb Mar Apr Mei Jun Jul Agt Sep Okt Nov Des)];
@@ -86,7 +86,7 @@ sub gen_monthly_calendar {
         push @lines, _center(21, sprintf("%s", $month_names->[$m-1]));
     }
 
-    push @lines, "Sn Sl Rb Km Ju Sb Mi"; # XXX use locale (but TBH locale's versions suck: Se Se Ra Ka Ju Sa Mi)
+    push @lines, "Sn Sl Rb Km Jm Sb Mg"; # XXX use locale (but TBH locale's versions suck: Se Se Ra Ka Ju Sa Mi)
 
     my $dow = $dt->day_of_week;
     $dt->subtract(days => $dow-1);
@@ -174,6 +174,10 @@ sub gen_calendar {
         push @lines, _center(64, $y);
     }
     $m or return [400, "Please specify month"];
+    if ($mm > 1) {
+        $margs{show_prev_month_days} = 0;
+        $margs{show_next_month_days} = 0;
+    }
 
     my @moncals;
     my $dt = DateTime->new(year=>$y, month=>$m, day => 1);
@@ -222,7 +226,7 @@ App::cal::id - Display Indonesian calendar on the command-line
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
