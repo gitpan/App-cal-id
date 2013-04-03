@@ -2,7 +2,7 @@ NAME
     App::cal::id - Display Indonesian calendar on the command-line
 
 VERSION
-    version 0.01
+    version 0.02
 
 SYNOPSIS
      # See cal-id script provided in this distribution
@@ -13,21 +13,51 @@ DESCRIPTION
 
 FUNCTIONS
   gen_monthly_calendar
-  gen_yearly_calendar
+  gen_calendar
 DESCRIPTION
     This module has Rinci metadata.
 
 FUNCTIONS
     None are exported by default, but they are exportable.
 
-  gen_monthly_calendar(%args) -> [status, msg, result, meta]
+  gen_calendar(%args) -> [status, msg, result, meta]
+    Generate one or more monthly calendars in 3-column format.
+
     Arguments ('*' denotes required arguments):
 
+    *   highlight_today => *bool* (default: 1)
+
+    *   month => *int*
+
+        The first month.
+
+        Not required if months=12 (generate whole year from month 1 to 12).
+
+    *   months => *int* (default: 1)
+
+    *   show_holiday_list => *bool* (default: 1)
+
+    *   year* => *int*
+
+    Return value:
+
+    Returns an enveloped result (an array). First element (status) is an
+    integer containing HTTP status code (200 means OK, 4xx caller error, 5xx
+    function error). Second element (msg) is a string containing error
+    message, or 'OK' if status is 200. Third element (result) is optional,
+    the actual result. Fourth element (meta) is called result metadata and
+    is optional, a hash that contains extra information.
+
+  gen_monthly_calendar(%args) -> any
+    Generate a single month calendar.
+
+    Return [\@lines, \@hol]
+
+    Arguments ('*' denotes required arguments):
+
+    *   highlight_today => *bool* (default: 1)
+
     *   month* => *int*
-
-    *   return_array => *bool*
-
-        If set to true, return array of lines instead of string.
 
     *   show_holiday_list => *bool* (default: 1)
 
@@ -35,42 +65,11 @@ FUNCTIONS
 
     *   show_prev_month_days => *bool* (default: 1)
 
-    *   show_title => *bool* (default: 1)
-
     *   show_year_in_title => *bool* (default: 1)
 
     *   year* => *int*
 
     Return value:
-
-    Returns an enveloped result (an array). First element (status) is an
-    integer containing HTTP status code (200 means OK, 4xx caller error, 5xx
-    function error). Second element (msg) is a string containing error
-    message, or 'OK' if status is 200. Third element (result) is optional,
-    the actual result. Fourth element (meta) is called result metadata and
-    is optional, a hash that contains extra information.
-
-  gen_yearly_calendar(%args) -> [status, msg, result, meta]
-    Arguments ('*' denotes required arguments):
-
-    *   return_array => *bool*
-
-        If set to true, return array of lines instead of string.
-
-    *   show_holiday_list => *bool* (default: 1)
-
-    *   show_title => *bool* (default: 1)
-
-    *   year* => *int*
-
-    Return value:
-
-    Returns an enveloped result (an array). First element (status) is an
-    integer containing HTTP status code (200 means OK, 4xx caller error, 5xx
-    function error). Second element (msg) is a string containing error
-    message, or 'OK' if status is 200. Third element (result) is optional,
-    the actual result. Fourth element (meta) is called result metadata and
-    is optional, a hash that contains extra information.
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>

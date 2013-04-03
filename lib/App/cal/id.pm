@@ -10,7 +10,7 @@ use List::Util qw(max);
 use Term::ANSIColor;
 use Text::ANSI::Util qw(ta_length);
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 my $month_names = [qw(Januari Februari Maret April Mei Juni Juli Agustus September Oktober November Desember)];
 my $short_month_names = [qw(Jan Feb Mar Apr Mei Jun Jul Agt Sep Okt Nov Des)];
@@ -34,6 +34,12 @@ sub _rpad {
 
 $SPEC{gen_monthly_calendar} = {
     v => 1.1,
+    summary => 'Generate a single month calendar',
+    description => <<'_',
+
+Return [\@lines, \@hol]
+
+_
     args => {
         month => {
             schema => ['int*' => between => [1, 12]],
@@ -42,9 +48,6 @@ $SPEC{gen_monthly_calendar} = {
         year => {
             schema => ['int*'],
             req => 1,
-        },
-        show_title => {
-            schema => ['bool', default => 1],
         },
         show_year_in_title => {
             schema => ['bool', default => 1],
@@ -58,14 +61,15 @@ $SPEC{gen_monthly_calendar} = {
         show_holiday_list => {
             schema => ['bool', default => 1],
         },
-        return_array => {
-            summary => 'If set to true, return array of lines instead of string',
-            schema => 'bool',
+        highlight_today => {
+            schema => [bool => default => 1],
         },
     },
+    "_perinci.sub.wrapper.validate_args" => 1,
+    result_naked => 1,
 };
 sub gen_monthly_calendar {
-    my %args = @_; my $_sahv_dpath = []; my $arg_err; if (exists($args{'return_array'})) { (!defined($args{'return_array'}) ? 1 :  ((!ref($args{'return_array'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for return_array: $arg_err"] } }if (!exists($args{'month'})) { return [400, "Missing argument: month"] } require Scalar::Util; ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'month'} >= 1 && $args{'month'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be between 1 and 12"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } ($args{'show_next_month_days'} //= 1, 1) && (!defined($args{'show_next_month_days'}) ? 1 :  ((!ref($args{'show_next_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_next_month_days: $arg_err"] } ($args{'show_year_in_title'} //= 1, 1) && (!defined($args{'show_year_in_title'}) ? 1 :  ((!ref($args{'show_year_in_title'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_year_in_title: $arg_err"] } ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } ($args{'show_title'} //= 1, 1) && (!defined($args{'show_title'}) ? 1 :  ((!ref($args{'show_title'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_title: $arg_err"] } ($args{'show_prev_month_days'} //= 1, 1) && (!defined($args{'show_prev_month_days'}) ? 1 :  ((!ref($args{'show_prev_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_prev_month_days: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } # VALIDATE_ARGS
+    my %args = @_; my $_sahv_dpath = []; my $arg_err; ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } ($args{'show_prev_month_days'} //= 1, 1) && (!defined($args{'show_prev_month_days'}) ? 1 :  ((!ref($args{'show_prev_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_prev_month_days: $arg_err"] } if (!exists($args{'month'})) { return [400, "Missing argument: month"] } require Scalar::Util; ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'month'} >= 1 && $args{'month'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be between 1 and 12"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } ($args{'show_next_month_days'} //= 1, 1) && (!defined($args{'show_next_month_days'}) ? 1 :  ((!ref($args{'show_next_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_next_month_days: $arg_err"] } ($args{'highlight_today'} //= 1, 1) && (!defined($args{'highlight_today'}) ? 1 :  ((!ref($args{'highlight_today'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for highlight_today: $arg_err"] } ($args{'show_year_in_title'} //= 1, 1) && (!defined($args{'show_year_in_title'}) ? 1 :  ((!ref($args{'show_year_in_title'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_year_in_title: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } # VALIDATE_ARGS
     my $m = $args{month};
     my $y = $args{year};
 
@@ -75,14 +79,13 @@ sub gen_monthly_calendar {
     my $dt_today = DateTime->today;
     my $hol = list_id_holidays(year=>$y, month=>$m, is_joint_leave=>0, detail=>1)->[2];
 
-    if ($args{show_title} // 1) {
-        # XXX use locale
-        if ($args{show_year_in_title} // 1) {
-            push @lines, _center(21, sprintf("%s %d", $month_names->[$m-1], $y));
-        } else {
-            push @lines, _center(21, sprintf("%s", $month_names->[$m-1]));
-        }
+    # XXX use locale
+    if ($args{show_year_in_title} // 1) {
+        push @lines, _center(21, sprintf("%s %d", $month_names->[$m-1], $y));
+    } else {
+        push @lines, _center(21, sprintf("%s", $month_names->[$m-1]));
     }
+
     push @lines, "Sn Sl Rb Km Ju Sb Mi"; # XXX use locale (but TBH locale's versions suck: Se Se Ra Ka Ju Sa Mi)
 
     my $dow = $dt->day_of_week;
@@ -101,7 +104,7 @@ sub gen_monthly_calendar {
             push @lines, "";
         }
         my $col = "white";
-        if (DateTime->compare($dt, $dt_today) == 0) {
+        if (($args{highlight_today}//1) && DateTime->compare($dt, $dt_today) == 0) {
             $col = "reverse";
         } else {
             for (@$hol) {
@@ -121,82 +124,89 @@ sub gen_monthly_calendar {
         }
     }
 
-    if ($args{show_holiday_list} // 1) {
-        for my $i (0..@$hol-1) {
-            push @lines, "" if $i == 0;
-            push @lines, sprintf("%2d = %s", $hol->[$i]{day}, $hol->[$i]{ind_name});
-        }
-    }
-
-    if ($args{return_array}) {
-        return \@lines;
-    } else {
-        return join "\n", @lines;
-    }
+    return [\@lines, $hol];
 }
 
-$SPEC{gen_yearly_calendar} = {
+$SPEC{gen_calendar} = {
     v => 1.1,
+    summary => 'Generate one or more monthly calendars in 3-column format',
     args => {
+        months => {
+            schema => ['int*', min=>1, max=>12, default=>1],
+        },
         year => {
             schema => ['int*'],
             req => 1,
         },
-        show_title => {
-            schema => ['bool', default => 1],
+        month => {
+            summary => 'The first month',
+            schema => ['int*'],
+            description => <<'_',
+
+Not required if months=12 (generate whole year from month 1 to 12).
+
+_
         },
         show_holiday_list => {
             schema => ['bool', default => 1],
         },
-        return_array => {
-            summary => 'If set to true, return array of lines instead of string',
-            schema => 'bool',
+        highlight_today => {
+            schema => [bool => default => 1],
         },
     },
+    "_perinci.sub.wrapper.validate_args" => 1,
 };
-sub gen_yearly_calendar {
-    my %args = @_; my $_sahv_dpath = []; my $arg_err; ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } ($args{'show_title'} //= 1, 1) && (!defined($args{'show_title'}) ? 1 :  ((!ref($args{'show_title'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_title: $arg_err"] } if (exists($args{'return_array'})) { (!defined($args{'return_array'}) ? 1 :  ((!ref($args{'return_array'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for return_array: $arg_err"] } }if (!exists($args{'year'})) { return [400, "Missing argument: year"] } require Scalar::Util; ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } # VALIDATE_ARGS
-    my $y = $args{year};
+sub gen_calendar {
+    my %args = @_; my $_sahv_dpath = []; my $arg_err; ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } require Scalar::Util; if (exists($args{'month'})) { ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } }($args{'highlight_today'} //= 1, 1) && (!defined($args{'highlight_today'}) ? 1 :  ((!ref($args{'highlight_today'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for highlight_today: $arg_err"] } ($args{'months'} //= 1, 1) && ((defined($args{'months'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'months'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'months'} >= 1) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be at least 1"),0)) && (($args{'months'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be at most 12"),0)); if ($arg_err) { return [400, "Invalid argument value for months: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } # VALIDATE_ARGS
+    my $y  = $args{year};
+    my $m  = $args{month};
+    my $mm = $args{months} // 1;
 
     my @lines;
-    my $hol = list_id_holidays(year=>$y, is_joint_leave=>0, detail=>1)->[2];
 
-    if ($args{show_title} // 1) {
-        push @lines, _center(67, $y);
-    }
+    my %margs = (
+        highlight_today => ($args{highlight_today} // 1),
+    );
 
-    my @moncals; # index starts from 1
-    for my $m (1..12) {
-        $moncals[$m] = gen_monthly_calendar(
-            month=>$m, year=>$y,
-            show_year_in_title   => 0,
-            show_holiday_list    => 0,
-            show_prev_month_days => 0,
-            show_next_month_days => 0,
-            return_array => 1,
-        );
+    if ($mm == 12 && !$m) {
+        $m = 1;
+        $margs{show_year_in_title} = 0;
+        push @lines, _center(64, $y);
     }
-    my $l = max(map {~~@$_} @moncals[1..12]);
-    push @lines, sprintf("%s  %s  %s", _rpad(21, $moncals[ 1][$_]//""), _rpad(21, $moncals[ 2][$_]//""), _rpad(21, $moncals[ 3][$_]//"")) for 0..$l-1;
-    push @lines, "";
-    push @lines, sprintf("%s  %s  %s", _rpad(21, $moncals[ 4][$_]//""), _rpad(21, $moncals[ 5][$_]//""), _rpad(21, $moncals[ 6][$_]//"")) for 0..$l-1;
-    push @lines, "";
-    push @lines, sprintf("%s  %s  %s", _rpad(21, $moncals[ 7][$_]//""), _rpad(21, $moncals[ 8][$_]//""), _rpad(21, $moncals[ 9][$_]//"")) for 0..$l-1;
-    push @lines, "";
-    push @lines, sprintf("%s  %s  %s", _rpad(21, $moncals[10][$_]//""), _rpad(21, $moncals[11][$_]//""), _rpad(21, $moncals[12][$_]//"")) for 0..$l-1;
+    $m or return [400, "Please specify month"];
+
+    my @moncals;
+    my $dt = DateTime->new(year=>$y, month=>$m, day => 1);
+    for (1..$mm) {
+        push @moncals, gen_monthly_calendar(
+            month=>$dt->month, year=>$dt->year, %margs);
+        $dt->add(months => 1);
+    }
+    my @hol = map {@{ $_->[1] }} @moncals;
+    my $l = max(map {~~@$_} map {$_->[0]} @moncals);
+    my $i = 0;
+    my $j = @moncals;
+    while (1) {
+        for (0..$l-1) {
+            push @lines,
+                sprintf("%s %s %s",
+                        _rpad(21, $moncals[$i+0][0][$_]//""),
+                        _rpad(21, $moncals[$i+1][0][$_]//""),
+                        _rpad(21, $moncals[$i+2][0][$_]//""));
+        }
+        last if $i+3 >= $j;
+        $i += 3;
+        push @lines, "";
+    }
 
     if ($args{show_holiday_list} // 1) {
-        for my $i (0..@$hol-1) {
+        for my $i (0..@hol-1) {
             push @lines, "" if $i == 0;
-            push @lines, sprintf("%2d %s = %s", $hol->[$i]{day}, $short_month_names->[$hol->[$i]{month}-1], $hol->[$i]{ind_name});
+            push @lines, sprintf("%2d %s = %s", $hol[$i]{day}, $short_month_names->[$hol[$i]{month}-1], $hol[$i]{ind_name});
         }
     }
 
-    if ($args{return_array}) {
-        return \@lines;
-    } else {
-        return join "\n", @lines;
-    }
+    [200, "OK", join("\n", @lines)];
 }
 
 1;
@@ -212,7 +222,7 @@ App::cal::id - Display Indonesian calendar on the command-line
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
@@ -227,7 +237,7 @@ command-line.
 
 =head2 gen_monthly_calendar
 
-=head2 gen_yearly_calendar
+=head2 gen_calendar
 
 =head1 DESCRIPTION
 
@@ -239,25 +249,53 @@ This module has L<Rinci> metadata.
 
 None are exported by default, but they are exportable.
 
-=head2 gen_monthly_calendar(%args) -> [status, msg, result, meta]
+=head2 gen_calendar(%args) -> [status, msg, result, meta]
+
+Generate one or more monthly calendars in 3-column format.
 
 Arguments ('*' denotes required arguments):
 
 =over 4
 
+=item * B<highlight_today> => I<bool> (default: 1)
+
+=item * B<month> => I<int>
+
+The first month.
+
+Not required if months=12 (generate whole year from month 1 to 12).
+
+=item * B<months> => I<int> (default: 1)
+
+=item * B<show_holiday_list> => I<bool> (default: 1)
+
+=item * B<year>* => I<int>
+
+=back
+
+Return value:
+
+Returns an enveloped result (an array). First element (status) is an integer containing HTTP status code (200 means OK, 4xx caller error, 5xx function error). Second element (msg) is a string containing error message, or 'OK' if status is 200. Third element (result) is optional, the actual result. Fourth element (meta) is called result metadata and is optional, a hash that contains extra information.
+
+=head2 gen_monthly_calendar(%args) -> any
+
+Generate a single month calendar.
+
+Return [\@lines, \@hol]
+
+Arguments ('*' denotes required arguments):
+
+=over 4
+
+=item * B<highlight_today> => I<bool> (default: 1)
+
 =item * B<month>* => I<int>
-
-=item * B<return_array> => I<bool>
-
-If set to true, return array of lines instead of string.
 
 =item * B<show_holiday_list> => I<bool> (default: 1)
 
 =item * B<show_next_month_days> => I<bool> (default: 1)
 
 =item * B<show_prev_month_days> => I<bool> (default: 1)
-
-=item * B<show_title> => I<bool> (default: 1)
 
 =item * B<show_year_in_title> => I<bool> (default: 1)
 
@@ -266,30 +304,6 @@ If set to true, return array of lines instead of string.
 =back
 
 Return value:
-
-Returns an enveloped result (an array). First element (status) is an integer containing HTTP status code (200 means OK, 4xx caller error, 5xx function error). Second element (msg) is a string containing error message, or 'OK' if status is 200. Third element (result) is optional, the actual result. Fourth element (meta) is called result metadata and is optional, a hash that contains extra information.
-
-=head2 gen_yearly_calendar(%args) -> [status, msg, result, meta]
-
-Arguments ('*' denotes required arguments):
-
-=over 4
-
-=item * B<return_array> => I<bool>
-
-If set to true, return array of lines instead of string.
-
-=item * B<show_holiday_list> => I<bool> (default: 1)
-
-=item * B<show_title> => I<bool> (default: 1)
-
-=item * B<year>* => I<int>
-
-=back
-
-Return value:
-
-Returns an enveloped result (an array). First element (status) is an integer containing HTTP status code (200 means OK, 4xx caller error, 5xx function error). Second element (msg) is a string containing error message, or 'OK' if status is 200. Third element (result) is optional, the actual result. Fourth element (meta) is called result metadata and is optional, a hash that contains extra information.
 
 =head1 AUTHOR
 
