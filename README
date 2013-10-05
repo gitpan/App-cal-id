@@ -2,7 +2,7 @@ NAME
     App::cal::id - Display Indonesian calendar on the command-line
 
 VERSION
-    version 0.03
+    version 0.04
 
 SYNOPSIS
      # See cal-id script provided in this distribution
@@ -12,17 +12,9 @@ DESCRIPTION
     on the command-line.
 
 FUNCTIONS
-  gen_monthly_calendar
-  gen_calendar
-DESCRIPTION
-    This module has Rinci metadata.
-
-FUNCTIONS
     None are exported by default, but they are exportable.
 
   gen_calendar(%args) -> [status, msg, result, meta]
-    Generate one or more monthly calendars in 3-column format.
-
     Arguments ('*' denotes required arguments):
 
     *   highlight_today => *bool* (default: 1)
@@ -37,6 +29,8 @@ FUNCTIONS
 
     *   show_holiday_list => *bool* (default: 1)
 
+    *   show_joint_leave => *bool* (default: 0)
+
     *   year* => *int*
 
     Return value:
@@ -49,8 +43,6 @@ FUNCTIONS
     is optional, a hash that contains extra information.
 
   gen_monthly_calendar(%args) -> any
-    Generate a single month calendar.
-
     Return [\@lines, \@hol]
 
     Arguments ('*' denotes required arguments):
@@ -60,6 +52,8 @@ FUNCTIONS
     *   month* => *int*
 
     *   show_holiday_list => *bool* (default: 1)
+
+    *   show_joint_leave => *bool* (default: 0)
 
     *   show_next_month_days => *bool* (default: 1)
 
