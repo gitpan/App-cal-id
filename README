@@ -1,9 +1,6 @@
 NAME
     App::cal::id - Display Indonesian calendar on the command-line
 
-VERSION
-    version 0.04
-
 SYNOPSIS
      # See cal-id script provided in this distribution
 
@@ -12,9 +9,9 @@ DESCRIPTION
     on the command-line.
 
 FUNCTIONS
-    None are exported by default, but they are exportable.
-
   gen_calendar(%args) -> [status, msg, result, meta]
+    Generate one or more monthly calendars in 3-column format.
+
     Arguments ('*' denotes required arguments):
 
     *   highlight_today => *bool* (default: 1)
@@ -31,6 +28,8 @@ FUNCTIONS
 
     *   show_joint_leave => *bool* (default: 0)
 
+    *   time_zone => *str*
+
     *   year* => *int*
 
     Return value:
@@ -43,6 +42,8 @@ FUNCTIONS
     is optional, a hash that contains extra information.
 
   gen_monthly_calendar(%args) -> any
+    Generate a single month calendar.
+
     Return [\@lines, \@hol]
 
     Arguments ('*' denotes required arguments):
@@ -61,9 +62,25 @@ FUNCTIONS
 
     *   show_year_in_title => *bool* (default: 1)
 
+    *   time_zone => *str*
+
     *   year* => *int*
 
     Return value:
+
+HOMEPAGE
+    Please visit the project's homepage at
+    <https://metacpan.org/release/App-cal-id>.
+
+SOURCE
+    Source repository is at <https://github.com/sharyanto/perl-App-cal-id>.
+
+BUGS
+    Please report any bugs or feature requests on the bugtracker website
+    http://rt.cpan.org/Public/Dist/Display.html?Name=App-cal-id
+
+    When submitting a bug or request, please include a test-file or a patch
+    to an existing test-file that illustrates the bug or desired feature.
 
 AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>

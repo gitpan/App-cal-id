@@ -10,7 +10,7 @@ use List::Util qw(max);
 use Term::ANSIColor;
 use Text::ANSI::Util qw(ta_length);
 
-our $VERSION = '0.04'; # VERSION
+our $VERSION = '0.05'; # VERSION
 
 my $month_names = [qw(Januari Februari Maret April Mei Juni Juli Agustus September Oktober November Desember)];
 my $short_month_names = [qw(Jan Feb Mar Apr Mei Jun Jul Agt Sep Okt Nov Des)];
@@ -67,19 +67,23 @@ _
         highlight_today => {
             schema => [bool => default => 1],
         },
+        time_zone => {
+            schema => 'str*',
+        },
     },
     "_perinci.sub.wrapper.validate_args" => 0,
     result_naked => 1,
 };
 sub gen_monthly_calendar {
-    my %args = @_; if (!exists($args{'month'})) { return [400, "Missing argument: month"] } require Scalar::Util; my $_sahv_dpath = []; my $arg_err; ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'month'} >= 1 && $args{'month'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be between 1 and 12"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } ($args{'show_next_month_days'} //= 1, 1) && (!defined($args{'show_next_month_days'}) ? 1 :  ((!ref($args{'show_next_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_next_month_days: $arg_err"] } ($args{'show_year_in_title'} //= 1, 1) && (!defined($args{'show_year_in_title'}) ? 1 :  ((!ref($args{'show_year_in_title'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_year_in_title: $arg_err"] } ($args{'show_joint_leave'} //= 0, 1) && (!defined($args{'show_joint_leave'}) ? 1 :  ((!ref($args{'show_joint_leave'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_joint_leave: $arg_err"] } ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } ($args{'show_prev_month_days'} //= 1, 1) && (!defined($args{'show_prev_month_days'}) ? 1 :  ((!ref($args{'show_prev_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_prev_month_days: $arg_err"] } ($args{'highlight_today'} //= 1, 1) && (!defined($args{'highlight_today'}) ? 1 :  ((!ref($args{'highlight_today'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for highlight_today: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } # VALIDATE_ARGS
+    my %args = @_; if (!exists($args{'month'})) { return [400, "Missing argument: month"] } require Scalar::Util; my $_sahv_dpath = []; my $arg_err; ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'month'} >= 1 && $args{'month'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be between 1 and 12"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } ($args{'show_next_month_days'} //= 1, 1) && (!defined($args{'show_next_month_days'}) ? 1 :  ((!ref($args{'show_next_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_next_month_days: $arg_err"] } ($args{'show_year_in_title'} //= 1, 1) && (!defined($args{'show_year_in_title'}) ? 1 :  ((!ref($args{'show_year_in_title'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_year_in_title: $arg_err"] } ($args{'show_joint_leave'} //= 0, 1) && (!defined($args{'show_joint_leave'}) ? 1 :  ((!ref($args{'show_joint_leave'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_joint_leave: $arg_err"] } ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } ($args{'show_prev_month_days'} //= 1, 1) && (!defined($args{'show_prev_month_days'}) ? 1 :  ((!ref($args{'show_prev_month_days'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_prev_month_days: $arg_err"] } if (exists($args{'time_zone'})) { ((defined($args{'time_zone'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((!ref($args{'time_zone'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type text"),0)); if ($arg_err) { return [400, "Invalid argument value for time_zone: $arg_err"] } }($args{'highlight_today'} //= 1, 1) && (!defined($args{'highlight_today'}) ? 1 :  ((!ref($args{'highlight_today'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for highlight_today: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } # VALIDATE_ARGS
     my $m = $args{month};
     my $y = $args{year};
 
     my @lines;
-    my $dt  = DateTime->new(year => $y, month => $m, day => 1);
-    my $dtl = DateTime->last_day_of_month(year => $y, month => $m);
-    my $dt_today = DateTime->today;
+    my $tz = $args{time_zone} // $ENV{TZ} // "UTC";
+    my $dt  = DateTime->new(year=>$y, month=>$m, day=>1, time_zone=>$tz);
+    my $dtl = DateTime->last_day_of_month(year=>$y, month=>$m, time_zone=>$tz);
+    my $dt_today = DateTime->today(time_zone=>$tz);
     my $hol = list_id_holidays(
         detail => 1, year => $y, month => $m,
         (is_joint_leave => 0) x !$args{show_joint_leave},
@@ -162,14 +166,18 @@ _
         highlight_today => {
             schema => [bool => default => 1],
         },
+        time_zone => {
+            schema => 'str*',
+        },
     },
     "_perinci.sub.wrapper.validate_args" => 0,
 };
 sub gen_calendar {
-    my %args = @_; my $_sahv_dpath = []; my $arg_err; ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } require Scalar::Util; if (exists($args{'month'})) { ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } }($args{'highlight_today'} //= 1, 1) && (!defined($args{'highlight_today'}) ? 1 :  ((!ref($args{'highlight_today'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for highlight_today: $arg_err"] } ($args{'months'} //= 1, 1) && ((defined($args{'months'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'months'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'months'} >= 1) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be at least 1"),0)) && (($args{'months'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be at most 12"),0)); if ($arg_err) { return [400, "Invalid argument value for months: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } ($args{'show_joint_leave'} //= 0, 1) && (!defined($args{'show_joint_leave'}) ? 1 :  ((!ref($args{'show_joint_leave'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_joint_leave: $arg_err"] } # VALIDATE_ARGS
+    my %args = @_; my $_sahv_dpath = []; my $arg_err; ($args{'show_holiday_list'} //= 1, 1) && (!defined($args{'show_holiday_list'}) ? 1 :  ((!ref($args{'show_holiday_list'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_holiday_list: $arg_err"] } require Scalar::Util; if (exists($args{'month'})) { ((defined($args{'month'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'month'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for month: $arg_err"] } }if (exists($args{'time_zone'})) { ((defined($args{'time_zone'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((!ref($args{'time_zone'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type text"),0)); if ($arg_err) { return [400, "Invalid argument value for time_zone: $arg_err"] } }($args{'highlight_today'} //= 1, 1) && (!defined($args{'highlight_today'}) ? 1 :  ((!ref($args{'highlight_today'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for highlight_today: $arg_err"] } ($args{'months'} //= 1, 1) && ((defined($args{'months'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'months'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)) && (($args{'months'} >= 1) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be at least 1"),0)) && (($args{'months'} <= 12) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Must be at most 12"),0)); if ($arg_err) { return [400, "Invalid argument value for months: $arg_err"] } if (!exists($args{'year'})) { return [400, "Missing argument: year"] } ((defined($args{'year'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Required input not specified"),0)) && ((Scalar::Util::looks_like_number($args{'year'}) =~ /^(?:1|2|9|10|4352)$/) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type integer"),0)); if ($arg_err) { return [400, "Invalid argument value for year: $arg_err"] } ($args{'show_joint_leave'} //= 0, 1) && (!defined($args{'show_joint_leave'}) ? 1 :  ((!ref($args{'show_joint_leave'})) ? 1 : (($arg_err //= (@$_sahv_dpath ? '@'.join("/",@$_sahv_dpath).": " : "") . "Input is not of type boolean value"),0))); if ($arg_err) { return [400, "Invalid argument value for show_joint_leave: $arg_err"] } # VALIDATE_ARGS
     my $y  = $args{year};
     my $m  = $args{month};
     my $mm = $args{months} // 1;
+    my $tz = $args{time_zone} // $ENV{TZ} // "UTC";
 
     my @lines;
 
@@ -190,10 +198,10 @@ sub gen_calendar {
     }
 
     my @moncals;
-    my $dt = DateTime->new(year=>$y, month=>$m, day => 1);
+    my $dt = DateTime->new(year=>$y, month=>$m, day=>1, time_zone=>$tz);
     for (1..$mm) {
         push @moncals, gen_monthly_calendar(
-            month=>$dt->month, year=>$dt->year, %margs);
+            month=>$dt->month, year=>$dt->year, time_zone=>$tz, %margs);
         $dt->add(months => 1);
     }
     my @hol = map {@{ $_->[1] }} @moncals;
@@ -236,10 +244,6 @@ __END__
 
 App::cal::id - Display Indonesian calendar on the command-line
 
-=head1 VERSION
-
-version 0.04
-
 =head1 SYNOPSIS
 
  # See cal-id script provided in this distribution
@@ -252,9 +256,9 @@ command-line.
 =head1 FUNCTIONS
 
 
-None are exported by default, but they are exportable.
-
 =head2 gen_calendar(%args) -> [status, msg, result, meta]
+
+Generate one or more monthly calendars in 3-column format.
 
 Arguments ('*' denotes required arguments):
 
@@ -274,6 +278,8 @@ Not required if months=12 (generate whole year from month 1 to 12).
 
 =item * B<show_joint_leave> => I<bool> (default: 0)
 
+=item * B<time_zone> => I<str>
+
 =item * B<year>* => I<int>
 
 =back
@@ -283,6 +289,8 @@ Return value:
 Returns an enveloped result (an array). First element (status) is an integer containing HTTP status code (200 means OK, 4xx caller error, 5xx function error). Second element (msg) is a string containing error message, or 'OK' if status is 200. Third element (result) is optional, the actual result. Fourth element (meta) is called result metadata and is optional, a hash that contains extra information.
 
 =head2 gen_monthly_calendar(%args) -> any
+
+Generate a single month calendar.
 
 Return [\@lines, \@hol]
 
@@ -304,11 +312,30 @@ Arguments ('*' denotes required arguments):
 
 =item * B<show_year_in_title> => I<bool> (default: 1)
 
+=item * B<time_zone> => I<str>
+
 =item * B<year>* => I<int>
 
 =back
 
 Return value:
+
+=head1 HOMEPAGE
+
+Please visit the project's homepage at L<https://metacpan.org/release/App-cal-id>.
+
+=head1 SOURCE
+
+Source repository is at L<https://github.com/sharyanto/perl-App-cal-id>.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website
+http://rt.cpan.org/Public/Dist/Display.html?Name=App-cal-id
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
 
 =head1 AUTHOR
 

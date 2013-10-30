@@ -9,7 +9,7 @@ use App::cal::id;
 use DateTime;
 use Getopt::Long;
 
-our $VERSION = '0.04'; # VERSION
+our $VERSION = '0.05'; # VERSION
 
 my %args = (months => 1);
 
@@ -59,10 +59,6 @@ __END__
 =head1 NAME
 
 cal-id - Display Indonesian calendar on the command-line
-
-=head1 VERSION
-
-version 0.04
 
 =head1 SYNOPSIS
 
@@ -120,6 +116,23 @@ off.
 =head1 SEE ALSO
 
 L<Calendar::Indonesia::Holiday>
+
+=head1 HOMEPAGE
+
+Please visit the project's homepage at L<https://metacpan.org/release/App-cal-id>.
+
+=head1 SOURCE
+
+Source repository is at L<https://github.com/sharyanto/perl-App-cal-id>.
+
+=head1 BUGS
+
+Please report any bugs or feature requests on the bugtracker website
+http://rt.cpan.org/Public/Dist/Display.html?Name=App-cal-id
+
+When submitting a bug or request, please include a test-file or a
+patch to an existing test-file that illustrates the bug or desired
+feature.
 
 =head1 AUTHOR
 
